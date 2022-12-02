@@ -54,7 +54,9 @@ import {
   IonToolbar, toastController
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
-import { informationCircleOutline } from 'ionicons/icons'
+import { informationCircleOutline } from 'ionicons/icons';
+
+const INITIAL_TIME = 60
 
 export default defineComponent({
   name: 'HomePage',
@@ -75,10 +77,28 @@ export default defineComponent({
   setup () {
     return {
       infoIcon: informationCircleOutline,
-      score: 0,
-      timeLeft: 60
+      started : false,
+      counterInterval: null
     }
   },
+  data () {
+    return {
+      score: 0,
+      timeLeft : INITIAL_TIME
+    }
+  },
+  watch: {
+    timeLeft: function(newTimeLeft) {
+      if (newTimeLeft <= 0){
+        this.started = false
+        this.timeLeft = INITIAL_TIME
+        clearInterval(this.counterInterval)
+        this.showResult()
+        this.score = 0
+      }
+    }
+  },
+
   methods: {
     async info() {
         const alert = await alertController
@@ -90,13 +110,21 @@ export default defineComponent({
         });
         await alert.present();
       },
-    async tap () {
-      console.log('TODO TAP ME');
+    tap () {
+      this.score++
+      if (!this.started) {
+      this.counterInterval = setInterval(() => {
+        this.timeLeft--
+      }, 1000)
+        this.started = true
+      }
+    },
+    async showResult() {
       const toast = await toastController
           .create({
             color: 'dark',
-            duration: 200,
-            message: 'Hola Manola',
+            duration: 2000,
+            message: `Time's Up. Your Score was: ${this.score}`,
             showCloseButton: true
           });
       await toast.present();
