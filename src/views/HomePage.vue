@@ -16,7 +16,7 @@
         <ion-grid>
           <ion-row>
             <ion-col>
-              <div class="ion-text-start">
+              <div id="blindText" class="ion-text-start">
                 Your Score: {{ score }}
               </div>
             </ion-col>
@@ -35,7 +35,7 @@
       </ion-header>
     
       <div id="container">
-        <ion-button color="primary" @click="tap">Tap Me</ion-button>
+        <ion-button id="tapMeButton" color="primary" @click="tap">Tap Me</ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -55,6 +55,7 @@ import {
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import { informationCircleOutline } from 'ionicons/icons';
+import { createAnimation } from '@ionic/vue';
 
 const INITIAL_TIME = 60
 
@@ -100,6 +101,20 @@ export default defineComponent({
   },
 
   methods: {
+    bounce() {
+      const animation = createAnimation()
+      animation.addElement(document.getElementById('tapMeButton'))
+          .duration(200)
+          .fromTo('transform', 'scale(2.0)', 'scale(1.0)')
+      animation.play();
+    },
+    blink() {
+      const animation = createAnimation()
+      animation.addElement(document.getElementById('blindText'))
+          .duration(500)
+          .fromTo('opacity','0','1')
+      animation.play();
+    },
     async info() {
         const alert = await alertController
           .create({
@@ -111,6 +126,8 @@ export default defineComponent({
         await alert.present();
       },
     tap () {
+      this.bounce()
+      this.blink()
       this.score++
       if (!this.started) {
       this.counterInterval = setInterval(() => {
